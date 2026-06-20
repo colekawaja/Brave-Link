@@ -47,7 +47,16 @@ export default function App() {
 function Root() {
   const insets = useSafeAreaInsets();
   const { ready, user, subscribed, latest, history, signIn, subscribe, signOut, addScan } = useApp();
-  const [fontsLoaded] = useFonts(fontMap);
+  const [fontsLoaded, fontError] = useFonts(fontMap);
+
+  // Never block the UI on fonts — if they fail or stall, fall back to system
+  // fonts after a moment so the app always renders.
+  const [fontTimeout, setFontTimeout] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setFontTimeout(true), 2500);
+    return () => clearTimeout(t);
+  }, []);
+  const fontsReady = fontsLoaded || !!fontError || fontTimeout;
 
   const reduced = useReducedMotion();
   const [stage, setStage] = useState("loading");
@@ -59,11 +68,11 @@ function Root() {
 
   // Decide the landing screen once everything has loaded.
   useEffect(() => {
-    if (ready && fontsLoaded && !routed.current) {
+    if (ready && fontsReady && !routed.current) {
       routed.current = true;
       setStage(user && subscribed && latest ? "home" : "intro");
     }
-  }, [ready, fontsLoaded, user, subscribed, latest]);
+  }, [ready, fontsReady, user, subscribed, latest]);
 
   // One real (API-backed) scan per day. Demo/sample scans don't count, so
   // the no-key preview stays unlimited for testing.
@@ -191,7 +200,7 @@ function Root() {
     }).start();
   }, [stage, fade, reduced]);
 
-  if (!fontsLoaded || stage === "loading") {
+  if (!fontsReady || stage === "loading") {
     return <View style={{ flex: 1 }} />;
   }
 
