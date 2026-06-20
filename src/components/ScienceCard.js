@@ -6,17 +6,19 @@ import { Body, Small, Tiny } from "./Type";
 import { Caret } from "./icons";
 import { tapLight } from "../lib/haptics";
 import usePressScale from "./usePressScale";
+import useReducedMotion from "../lib/useReducedMotion";
 
 /* A bold statistic with a tap-to-expand explanation + source. */
 export default function ScienceCard({ fact, defaultOpen = false, tint = false }) {
   const [open, setOpen] = useState(defaultOpen);
   const rot = useRef(new Animated.Value(defaultOpen ? 1 : 0)).current;
   const { scale, onPressIn, onPressOut } = usePressScale(0.99);
+  const reduced = useReducedMotion();
 
   const toggle = () => {
     tapLight();
-    LayoutAnimation.configureNext(LayoutAnimation.create(230, "easeInEaseOut", "opacity"));
-    Animated.timing(rot, { toValue: open ? 0 : 1, duration: 210, useNativeDriver: true }).start();
+    if (!reduced) LayoutAnimation.configureNext(LayoutAnimation.create(230, "easeInEaseOut", "opacity"));
+    Animated.timing(rot, { toValue: open ? 0 : 1, duration: reduced ? 0 : 210, useNativeDriver: true }).start();
     setOpen((o) => !o);
   };
   const spin = rot.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "180deg"] });

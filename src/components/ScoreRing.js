@@ -4,6 +4,7 @@ import Svg, { Defs, LinearGradient, Stop, Circle } from "react-native-svg";
 import { FONT } from "../theme/fonts";
 import { colors, motion } from "../theme/tokens";
 import { clamp, scoreGradient, scoreGlow } from "../lib/format";
+import useReducedMotion from "../lib/useReducedMotion";
 import Aura from "./Aura";
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
@@ -16,12 +17,18 @@ export default function ScoreRing({ value, size = 248, compact = false }) {
   const target = clamp(value, 0, 100);
   const numSize = compact ? Math.round(size * 0.34) : 80;
 
+  const reduced = useReducedMotion();
   const progress = useRef(new Animated.Value(0)).current;
   const intro = useRef(new Animated.Value(0)).current;
   const [shown, setShown] = useState(0);
 
   useEffect(() => {
     const id = progress.addListener(({ value: v }) => setShown(Math.round(v * target)));
+    if (reduced) {
+      intro.setValue(1);
+      progress.setValue(1);
+      return () => progress.removeListener(id);
+    }
     Animated.timing(intro, {
       toValue: 1,
       duration: 520,
@@ -36,7 +43,7 @@ export default function ScoreRing({ value, size = 248, compact = false }) {
       useNativeDriver: false,
     }).start();
     return () => progress.removeListener(id);
-  }, [progress, intro, target]);
+  }, [progress, intro, target, reduced]);
 
   const introScale = intro.interpolate({ inputRange: [0, 1], outputRange: [0.94, 1] });
 

@@ -11,6 +11,7 @@ import ScoreRing from "../components/ScoreRing";
 import ScienceCard from "../components/ScienceCard";
 import RoutineCard from "../components/RoutineCard";
 import ScoreBar from "../components/ScoreBar";
+import ProgressChart from "../components/ProgressChart";
 import { useApp } from "../state/AppContext";
 import { SCIENCE } from "../lib/scienceFacts";
 import { clamp, label, scoreColor, SEVERITY_ORDER } from "../lib/format";
@@ -93,6 +94,26 @@ export default function HomeScreen({ onRescan, onViewReport, onSignOut }) {
       <Reveal delay={180} style={{ marginTop: space.h1 }}>
         <PrimaryButton label="Rescan my skin" full onPress={onRescan} />
       </Reveal>
+
+      {/* progress over time */}
+      {history.length >= 2 && (
+        <Reveal delay={240} style={{ marginTop: space.giant }}>
+          <SectionLabel>PROGRESS</SectionLabel>
+          <View
+            style={{
+              marginTop: space.lg,
+              backgroundColor: colors.surface,
+              borderRadius: radius.card,
+              borderWidth: 1,
+              borderColor: colors.line,
+              paddingHorizontal: space.xl,
+              paddingVertical: space.xl,
+            }}
+          >
+            <ProgressChart history={history} />
+          </View>
+        </Reveal>
+      )}
 
       {/* science */}
       <Reveal delay={270} style={{ marginTop: space.giant }}>

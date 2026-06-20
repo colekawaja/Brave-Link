@@ -8,19 +8,27 @@ import ScienceCard from "../components/ScienceCard";
 import Reveal from "../components/Reveal";
 import Aura from "../components/Aura";
 import { SCIENCE } from "../lib/scienceFacts";
+import useReducedMotion from "../lib/useReducedMotion";
 
 /* The front page — an editorial hero with one telling, citable statistic. */
 export default function IntroScreen({ onStart, onPreview }) {
+  const reduced = useReducedMotion();
   const breathe = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.loop(
+    if (reduced) {
+      breathe.setValue(0.5);
+      return;
+    }
+    const loop = Animated.loop(
       Animated.sequence([
         Animated.timing(breathe, { toValue: 1, duration: 4200, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
         Animated.timing(breathe, { toValue: 0, duration: 4200, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
       ])
-    ).start();
-  }, [breathe]);
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [breathe, reduced]);
 
   const scale = breathe.interpolate({ inputRange: [0, 1], outputRange: [1, 1.08] });
   const opacity = breathe.interpolate({ inputRange: [0, 1], outputRange: [0.7, 1] });

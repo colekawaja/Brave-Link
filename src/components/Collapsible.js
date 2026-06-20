@@ -12,6 +12,7 @@ import { Heading, Small } from "./Type";
 import { Caret } from "./icons";
 import { tapLight } from "../lib/haptics";
 import usePressScale from "./usePressScale";
+import useReducedMotion from "../lib/useReducedMotion";
 
 if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -29,13 +30,14 @@ export default function Collapsible({ title, accent, meta, defaultOpen = false, 
   const [open, setOpen] = useState(defaultOpen);
   const rot = useRef(new Animated.Value(defaultOpen ? 1 : 0)).current;
   const { scale, onPressIn, onPressOut } = usePressScale(0.99);
+  const reduced = useReducedMotion();
 
   const toggle = () => {
     tapLight();
-    LayoutAnimation.configureNext(expand);
+    if (!reduced) LayoutAnimation.configureNext(expand);
     Animated.timing(rot, {
       toValue: open ? 0 : 1,
-      duration: 220,
+      duration: reduced ? 0 : 220,
       useNativeDriver: true,
     }).start();
     setOpen((o) => !o);

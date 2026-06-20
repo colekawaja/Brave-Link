@@ -8,6 +8,7 @@ import { Title, Body, Small } from "../components/Type";
 import { ShutterButton, TextLink, IconButton } from "../components/Button";
 import { ChevronLeft, ImageIcon } from "../components/icons";
 import Reveal from "../components/Reveal";
+import useReducedMotion from "../lib/useReducedMotion";
 
 /* Corner ticks framing the oval — a quiet "viewfinder" cue. */
 function Guide() {
@@ -32,14 +33,16 @@ export default function CaptureScreen({ onBack, onCapture }) {
   const [permission, requestPermission] = useCameraPermissions();
   const [ready, setReady] = useState(false);
   const flash = useRef(new Animated.Value(0)).current;
+  const reduced = useReducedMotion();
 
   const triggerFlash = useCallback(() => {
+    if (reduced) return;
     flash.setValue(0);
     Animated.sequence([
       Animated.timing(flash, { toValue: 0.85, duration: 70, useNativeDriver: true }),
       Animated.timing(flash, { toValue: 0, duration: 260, useNativeDriver: true }),
     ]).start();
-  }, [flash]);
+  }, [flash, reduced]);
 
   useEffect(() => {
     if (permission && !permission.granted && permission.canAskAgain) {

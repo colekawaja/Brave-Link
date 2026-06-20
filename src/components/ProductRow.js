@@ -5,14 +5,16 @@ import { colors, radius, space } from "../theme/tokens";
 import { Body, Small, Tiny } from "./Type";
 import { Caret, Sparkle } from "./icons";
 import { evidenceFor } from "../lib/evidence";
+import useReducedMotion from "../lib/useReducedMotion";
 
 function EvidenceNote({ evidence }) {
   const [open, setOpen] = useState(false);
   const rot = useRef(new Animated.Value(0)).current;
+  const reduced = useReducedMotion();
 
   const toggle = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.create(220, "easeInEaseOut", "opacity"));
-    Animated.timing(rot, { toValue: open ? 0 : 1, duration: 200, useNativeDriver: true }).start();
+    if (!reduced) LayoutAnimation.configureNext(LayoutAnimation.create(220, "easeInEaseOut", "opacity"));
+    Animated.timing(rot, { toValue: open ? 0 : 1, duration: reduced ? 0 : 200, useNativeDriver: true }).start();
     setOpen((o) => !o);
   };
   const spin = rot.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "180deg"] });

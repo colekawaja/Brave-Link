@@ -1,8 +1,10 @@
 import React, { useEffect, useRef } from "react";
 import { Animated } from "react-native";
 import { motion } from "../theme/tokens";
+import useReducedMotion from "../lib/useReducedMotion";
 
-/* Choreographed entrance: fade + a small rise, with a stagger delay. */
+/* Choreographed entrance: fade + a small rise, with a stagger delay.
+ * Respects the OS "Reduce Motion" setting. */
 export default function Reveal({
   delay = 0,
   distance = 12,
@@ -10,17 +12,24 @@ export default function Reveal({
   style,
   children,
 }) {
+  const reduced = useReducedMotion();
   const t = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.timing(t, {
+    if (reduced) {
+      t.setValue(1);
+      return;
+    }
+    const anim = Animated.timing(t, {
       toValue: 1,
       duration,
       delay,
       easing: motion.ease,
       useNativeDriver: true,
-    }).start();
-  }, [t, delay, duration]);
+    });
+    anim.start();
+    return () => anim.stop();
+  }, [t, delay, duration, reduced]);
 
   return (
     <Animated.View
@@ -29,12 +38,7 @@ export default function Reveal({
         {
           opacity: t,
           transform: [
-            {
-              translateY: t.interpolate({
-                inputRange: [0, 1],
-                outputRange: [distance, 0],
-              }),
-            },
+            { translateY: t.interpolate({ inputRange: [0, 1], outputRange: [distance, 0] }) },
           ],
         },
       ]}

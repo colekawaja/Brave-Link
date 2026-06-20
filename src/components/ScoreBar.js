@@ -3,14 +3,20 @@ import { Animated } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { colors, motion } from "../theme/tokens";
 import { clamp, scoreGradient } from "../lib/format";
+import useReducedMotion from "../lib/useReducedMotion";
 
 /* A slim track with a gradient fill that eases out to its value. */
 export default function ScoreBar({ value }) {
+  const reduced = useReducedMotion();
   const a = useRef(new Animated.Value(0)).current;
   const v = clamp(value, 0, 100);
   const grad = scoreGradient(v);
 
   useEffect(() => {
+    if (reduced) {
+      a.setValue(v);
+      return;
+    }
     Animated.timing(a, {
       toValue: v,
       duration: 1000,
@@ -18,7 +24,7 @@ export default function ScoreBar({ value }) {
       easing: motion.ease,
       useNativeDriver: false,
     }).start();
-  }, [a, v]);
+  }, [a, v, reduced]);
 
   const width = a.interpolate({ inputRange: [0, 100], outputRange: ["0%", "100%"] });
 

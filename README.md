@@ -28,13 +28,19 @@ New users go through an intentional funnel — they invest a little (take the
 photo) *before* being asked to sign up or pay:
 
 ```
-intro → capture → analyzing → account → paywall → results → home (dashboard)
+intro → capture → confirm → analyzing → account → paywall → results → home
 ```
 
-Returning users open straight to the **dashboard**, where they can rescan, watch
-their score change over time, see their daily routine, and read the science.
+After taking/uploading a photo, a **confirm step** ("Use this / Retake") lets
+people avoid analyzing a bad shot. Returning users open straight to the
+**dashboard**, where they rescan, watch their score change over time on a
+**progress sparkline**, see their daily routine, and read the science.
 Accounts, subscription, and scan history are persisted with AsyncStorage so
 progress survives restarts.
+
+All motion honors the OS **Reduce Motion** setting (`useReducedMotion`) — when
+it's on, transitions, count-ups, the score-ring scale-in, expand animations,
+and the chart draw resolve instantly.
 
 ## Architecture
 

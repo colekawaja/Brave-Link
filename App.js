@@ -10,9 +10,11 @@ import { fontMap } from "./src/theme/fonts";
 import { AppProvider, useApp } from "./src/state/AppContext";
 import { analyzeImage, hasApiKey } from "./src/lib/anthropic";
 import { SAMPLE_RESULT } from "./src/lib/sampleResult";
+import useReducedMotion from "./src/lib/useReducedMotion";
 
 import IntroScreen from "./src/screens/IntroScreen";
 import CaptureScreen from "./src/screens/CaptureScreen";
+import ConfirmScreen from "./src/screens/ConfirmScreen";
 import AnalyzingScreen from "./src/screens/AnalyzingScreen";
 import AccountScreen from "./src/screens/AccountScreen";
 import PaywallScreen from "./src/screens/PaywallScreen";
@@ -46,9 +48,11 @@ function Root() {
   const { ready, user, subscribed, latest, signIn, subscribe, signOut, addScan } = useApp();
   const [fontsLoaded] = useFonts(fontMap);
 
+  const reduced = useReducedMotion();
   const [stage, setStage] = useState("loading");
   const [active, setActive] = useState(null); // result shown on the Results screen
   const [pending, setPending] = useState(null); // scan awaiting account/payment
+  const [captured, setCaptured] = useState(null); // photo awaiting confirmation
   const [demo, setDemo] = useState(false);
   const routed = useRef(false);
 
@@ -102,16 +106,15 @@ function Root() {
     [gate]
   );
 
-  const onCapture = useCallback(
-    (base64, mediaType) => {
-      if (!base64 && hasApiKey) {
-        setStage("error");
-        return;
-      }
-      runScan(base64, mediaType);
-    },
-    [runScan]
-  );
+  // Capture/upload now routes to a confirmation step before analyzing.
+  const onCapture = useCallback((base64, mediaType) => {
+    if (!base64) {
+      setStage("error");
+      return;
+    }
+    setCaptured({ base64, mediaType });
+    setStage("confirm");
+  }, []);
 
   // Free preview from the intro — skips the account/payment gate.
   const preview = useCallback(async () => {
@@ -160,6 +163,10 @@ function Root() {
   const fade = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     if (stage === "loading") return;
+    if (reduced) {
+      fade.setValue(1);
+      return;
+    }
     fade.setValue(0);
     Animated.timing(fade, {
       toValue: 1,
@@ -167,7 +174,7 @@ function Root() {
       easing: motion.ease,
       useNativeDriver: true,
     }).start();
-  }, [stage, fade]);
+  }, [stage, fade, reduced]);
 
   if (!fontsLoaded || stage === "loading") {
     return <View style={{ flex: 1 }} />;
@@ -177,6 +184,13 @@ function Root() {
     <Animated.View style={{ flex: 1, paddingTop: insets.top, paddingBottom: insets.bottom, opacity: fade }}>
       {stage === "intro" && <IntroScreen onStart={() => setStage("capture")} onPreview={preview} />}
       {stage === "capture" && <CaptureScreen onBack={backFromCapture} onCapture={onCapture} />}
+      {stage === "confirm" && captured && (
+        <ConfirmScreen
+          image={captured}
+          onUse={() => runScan(captured.base64, captured.mediaType)}
+          onRetake={() => setStage("capture")}
+        />
+      )}
       {stage === "analyzing" && <AnalyzingScreen />}
       {stage === "account" && <AccountScreen onSignIn={onSignIn} />}
       {stage === "paywall" && <PaywallScreen onPay={onPay} onCancel={() => setStage("intro")} />}
