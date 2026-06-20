@@ -1,14 +1,18 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Animated, View, StyleSheet } from "react-native";
+import { Animated, Platform, View, StyleSheet } from "react-native";
 import Svg, { Ellipse, Path } from "react-native-svg";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
+import * as Device from "expo-device";
 import { colors, radius, shadow, space } from "../theme/tokens";
 import { Title, Body, Small } from "../components/Type";
-import { ShutterButton, TextLink, IconButton } from "../components/Button";
+import { ShutterButton, PrimaryButton, TextLink, IconButton } from "../components/Button";
 import { ChevronLeft, ImageIcon } from "../components/icons";
 import Reveal from "../components/Reveal";
 import useReducedMotion from "../lib/useReducedMotion";
+
+// Simulators/emulators have no usable camera — steer to upload there.
+const HAS_CAMERA = Platform.OS === "web" || Device.isDevice;
 
 /* Corner ticks framing the oval — a quiet "viewfinder" cue. */
 function Guide() {
@@ -45,7 +49,7 @@ export default function CaptureScreen({ onBack, onCapture }) {
   }, [flash, reduced]);
 
   useEffect(() => {
-    if (permission && !permission.granted && permission.canAskAgain) {
+    if (HAS_CAMERA && permission && !permission.granted && permission.canAskAgain) {
       requestPermission();
     }
   }, [permission, requestPermission]);
@@ -77,7 +81,7 @@ export default function CaptureScreen({ onBack, onCapture }) {
     onCapture(asset.base64, mediaType);
   }, [onCapture]);
 
-  const granted = permission?.granted;
+  const granted = HAS_CAMERA && permission?.granted;
 
   return (
     <View style={{ flex: 1, paddingHorizontal: space.xxl }}>
@@ -91,9 +95,11 @@ export default function CaptureScreen({ onBack, onCapture }) {
       </View>
 
       <Reveal style={{ alignItems: "center", marginTop: space.sm }}>
-        <Title>Center your face</Title>
-        <Body style={{ marginTop: space.sm, color: colors.ink2 }}>
-          Face a window, no harsh shadows.
+        <Title>{HAS_CAMERA ? "Center your face" : "Add your selfie"}</Title>
+        <Body style={{ marginTop: space.sm, color: colors.ink2, textAlign: "center" }}>
+          {HAS_CAMERA
+            ? "Face a window, no harsh shadows."
+            : "No camera in the Simulator — upload a clear, well-lit selfie."}
         </Body>
       </Reveal>
 
@@ -117,9 +123,11 @@ export default function CaptureScreen({ onBack, onCapture }) {
             </>
           ) : (
             <View style={[StyleSheet.absoluteFill, styles.center, { padding: space.xxl }]}>
-              <Title style={{ fontSize: 20 }}>Camera is off</Title>
+              <Title style={{ fontSize: 20 }}>{HAS_CAMERA ? "Camera is off" : "Simulator"}</Title>
               <Body style={{ textAlign: "center", marginTop: space.md, color: colors.ink2 }}>
-                Allow camera access, or upload a clear, well-lit selfie instead.
+                {HAS_CAMERA
+                  ? "Allow camera access, or upload a clear, well-lit selfie instead."
+                  : "Drag a photo onto the Simulator (it saves to Photos), then upload it below."}
               </Body>
             </View>
           )}
@@ -131,13 +139,15 @@ export default function CaptureScreen({ onBack, onCapture }) {
       </Reveal>
 
       {/* actions */}
-      <Reveal delay={220} style={{ alignItems: "center", gap: space.xl, paddingBottom: space.lg }}>
-        {granted && <ShutterButton onPress={capture} />}
-        <TextLink
-          label={granted ? "Upload a photo instead" : "Upload a photo"}
-          icon={<ImageIcon />}
-          onPress={pick}
-        />
+      <Reveal delay={220} style={{ alignItems: "center", gap: space.lg, paddingBottom: space.lg }}>
+        {granted ? (
+          <>
+            <ShutterButton onPress={capture} />
+            <TextLink label="Upload a photo instead" icon={<ImageIcon />} onPress={pick} />
+          </>
+        ) : (
+          <PrimaryButton label="Upload a photo" full onPress={pick} />
+        )}
       </Reveal>
     </View>
   );
