@@ -36,7 +36,7 @@ export default function App() {
 
 function Root() {
   const insets = useSafeAreaInsets();
-  const { stage, setStage, result, analyze } = useAnalysis();
+  const { stage, setStage, result, demo, analyze, preview } = useAnalysis();
   const [fontsLoaded] = useFonts(fontMap);
 
   if (!fontsLoaded) {
@@ -53,14 +53,16 @@ function Root() {
 
   return (
     <View style={{ flex: 1, paddingTop: insets.top, paddingBottom: insets.bottom }}>
-      {stage === "intro" && <IntroScreen onStart={() => setStage("capture")} />}
+      {stage === "intro" && (
+        <IntroScreen onStart={() => setStage("capture")} onPreview={preview} />
+      )}
       {stage === "capture" && (
         <CaptureScreen onBack={() => setStage("intro")} onCapture={onCapture} />
       )}
       {stage === "analyzing" && <AnalyzingScreen />}
       {stage === "error" && <ErrorScreen onRetry={() => setStage("capture")} />}
       {stage === "results" && result && (
-        <ResultsScreen result={result} onRescan={() => setStage("capture")} />
+        <ResultsScreen result={result} demo={demo} onRescan={() => setStage("capture")} />
       )}
     </View>
   );

@@ -2,12 +2,13 @@ import React, { useEffect, useRef } from "react";
 import { Animated, Easing, View } from "react-native";
 import { colors, space } from "../theme/tokens";
 import { Display, Body, Kicker, Tiny } from "../components/Type";
-import { PrimaryButton } from "../components/Button";
+import { PrimaryButton, TextLink } from "../components/Button";
+import { Sparkle } from "../components/icons";
 import Reveal from "../components/Reveal";
 import Aura from "../components/Aura";
 
 /* A calm hero — a softly breathing aura behind an editorial headline. */
-export default function IntroScreen({ onStart }) {
+export default function IntroScreen({ onStart, onPreview }) {
   const breathe = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -60,7 +61,13 @@ export default function IntroScreen({ onStart }) {
         <PrimaryButton label="Scan my skin" onPress={onStart} />
       </Reveal>
 
-      <Reveal delay={680} style={{ alignItems: "center", marginTop: space.xxl }}>
+      {onPreview && (
+        <Reveal delay={620} style={{ marginTop: space.lg }}>
+          <TextLink label="Preview with sample data" icon={<Sparkle size={14} />} onPress={onPreview} />
+        </Reveal>
+      )}
+
+      <Reveal delay={720} style={{ alignItems: "center", marginTop: space.xl }}>
         <Tiny style={{ textAlign: "center", maxWidth: 280 }}>
           Your photo is analyzed for this scan only and never stored.
         </Tiny>

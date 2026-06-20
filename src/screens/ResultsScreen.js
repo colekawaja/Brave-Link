@@ -45,7 +45,7 @@ function ProductRow({ product }) {
   );
 }
 
-export default function ResultsScreen({ result, onRescan }) {
+export default function ResultsScreen({ result, demo, onRescan }) {
   const concerns = Array.isArray(result.concerns) ? result.concerns : [];
   const sorted = [...concerns].sort(
     (a, b) =>
@@ -66,6 +66,21 @@ export default function ResultsScreen({ result, onRescan }) {
     >
       {/* hero */}
       <Reveal style={{ alignItems: "center", marginTop: space.md }}>
+        {demo && (
+          <View
+            style={{
+              backgroundColor: colors.sageSoft,
+              borderRadius: radius.chip,
+              paddingHorizontal: 12,
+              paddingVertical: 5,
+              marginBottom: space.lg,
+            }}
+          >
+            <Tiny style={{ color: colors.sageDeep, fontFamily: FONT.sansMed, letterSpacing: 0.4 }}>
+              Sample result · add a key for a real scan
+            </Tiny>
+          </View>
+        )}
         <ScoreRing value={clamp(Math.round(result.overallClarity), 0, 100)} />
         <Serif style={{ textAlign: "center", marginTop: space.h3, maxWidth: 350 }}>
           {result.summary}

@@ -6,6 +6,9 @@ export const MODEL = "claude-opus-4-8";
 // comes from an Expo public env var.
 const API_KEY = process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY;
 
+// Whether a real analysis is possible. When false, the app runs in demo mode.
+export const hasApiKey = Boolean(API_KEY);
+
 export const ANALYSIS_PROMPT = `You are a cosmetic skin-analysis assistant. Analyze ONLY the visible skin in this
 selfie, for cosmetic skincare purposes (not medical diagnosis). Be encouraging and
 constructive. Never comment on attractiveness, symmetry, age, weight, or facial
