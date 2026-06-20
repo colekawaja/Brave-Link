@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "Clarity",
+    "slug": "clarity",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#F4F1EA",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Clarity uses your camera to take one selfie for skin analysis.",
+        "NSPhotoLibraryUsageDescription": "Clarity needs access to your photos so you can upload a selfie instead."
+      }
+    },
+    "android": {
+      "permissions": ["CAMERA"]
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Clarity uses your camera to take one selfie for skin analysis."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Clarity needs access to your photos so you can upload a selfie instead."
+        }
+      ]
+    ]
+  }
+}
