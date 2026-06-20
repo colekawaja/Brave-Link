@@ -29,15 +29,30 @@ The whole experience is one self-contained component: [`App.js`](App.js)
 `expo-camera`, `react-native-svg`, native fonts via `@expo-google-fonts`). The
 rest of the project is just the Expo scaffolding needed to run it.
 
-## Run it on a phone
+## Run it
 
 ```bash
 npm install
-npx expo start
 ```
 
-Then open the project in **Expo Go** (scan the QR code) on your iPhone or
-Android device, or press `i` / `a` to launch a simulator/emulator.
+Then pick whichever is easiest — **none of these require Xcode**:
+
+**On your phone (best — real camera).** Install **Expo Go** from the App Store /
+Google Play, run `npx expo start`, and scan the QR code (phone and computer on
+the same Wi-Fi). On a locked-down network, use `npx expo start --tunnel`.
+
+**In your computer's browser (no phone needed).**
+
+```bash
+npx expo start --web
+```
+
+Opens at `http://localhost:8081`. The browser will ask for camera permission;
+"Upload a photo instead" also works.
+
+**In a simulator (requires Xcode or Android Studio).** Press `i` for the iOS
+Simulator or `a` for an Android emulator. Note the iOS Simulator has no camera,
+so use the upload option there.
 
 ### API key
 

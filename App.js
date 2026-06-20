@@ -113,6 +113,8 @@ function buildHeaders() {
   if (API_KEY) {
     headers["x-api-key"] = API_KEY;
     headers["anthropic-version"] = "2023-06-01";
+    // Allow the call to run from a browser (web preview); harmless on native.
+    headers["anthropic-dangerous-direct-browser-access"] = "true";
   }
   return headers;
 }
