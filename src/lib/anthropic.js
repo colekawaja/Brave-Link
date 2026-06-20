@@ -60,6 +60,13 @@ function buildHeaders() {
 }
 
 export async function analyzeImage(base64, mediaType) {
+  if (!hasApiKey) {
+    console.warn(
+      "[Clarity] No API key — using sample data. Add EXPO_PUBLIC_ANTHROPIC_API_KEY to .env and restart with `npx expo start -c`."
+    );
+  } else {
+    console.log("[Clarity] Calling Anthropic API…");
+  }
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: buildHeaders(),
@@ -80,8 +87,17 @@ export async function analyzeImage(base64, mediaType) {
       ],
     }),
   });
-  if (!res.ok) throw new Error("request failed");
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    console.warn(`[Clarity] API error ${res.status}: ${body.slice(0, 300)}`);
+    throw new Error("request failed");
+  }
   const data = await res.json();
+  if (data.usage) {
+    const { input_tokens: i = 0, output_tokens: o = 0 } = data.usage;
+    const cost = (i * 5 + o * 25) / 1e6;
+    console.log(`[Clarity] API ok — ${i} in / ${o} out tokens (~$${cost.toFixed(4)})`);
+  }
   const textBlock = (data.content || []).find((b) => b.type === "text");
   let raw = (textBlock ? textBlock.text : "").trim();
   raw = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
