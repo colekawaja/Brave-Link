@@ -11,6 +11,7 @@ import { colors, radius, shadow, space } from "../theme/tokens";
 import { Heading, Small } from "./Type";
 import { Caret } from "./icons";
 import { tapLight } from "../lib/haptics";
+import usePressScale from "./usePressScale";
 
 if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -27,6 +28,7 @@ const expand = {
 export default function Collapsible({ title, accent, meta, defaultOpen = false, children }) {
   const [open, setOpen] = useState(defaultOpen);
   const rot = useRef(new Animated.Value(defaultOpen ? 1 : 0)).current;
+  const { scale, onPressIn, onPressOut } = usePressScale(0.99);
 
   const toggle = () => {
     tapLight();
@@ -42,7 +44,7 @@ export default function Collapsible({ title, accent, meta, defaultOpen = false, 
   const spin = rot.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "180deg"] });
 
   return (
-    <View
+    <Animated.View
       style={[
         {
           backgroundColor: colors.surface,
@@ -50,12 +52,15 @@ export default function Collapsible({ title, accent, meta, defaultOpen = false, 
           borderWidth: 1,
           borderColor: colors.line,
           overflow: "hidden",
+          transform: [{ scale }],
         },
         shadow.card,
       ]}
     >
       <Pressable
         onPress={toggle}
+        onPressIn={onPressIn}
+        onPressOut={onPressOut}
         style={({ pressed }) => ({
           flexDirection: "row",
           alignItems: "center",
@@ -85,6 +90,6 @@ export default function Collapsible({ title, accent, meta, defaultOpen = false, 
       {open && (
         <View style={{ paddingHorizontal: space.xl, paddingBottom: space.lg }}>{children}</View>
       )}
-    </View>
+    </Animated.View>
   );
 }

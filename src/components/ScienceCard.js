@@ -5,11 +5,13 @@ import { colors, radius, shadow, space } from "../theme/tokens";
 import { Body, Small, Tiny } from "./Type";
 import { Caret } from "./icons";
 import { tapLight } from "../lib/haptics";
+import usePressScale from "./usePressScale";
 
 /* A bold statistic with a tap-to-expand explanation + source. */
 export default function ScienceCard({ fact, defaultOpen = false, tint = false }) {
   const [open, setOpen] = useState(defaultOpen);
   const rot = useRef(new Animated.Value(defaultOpen ? 1 : 0)).current;
+  const { scale, onPressIn, onPressOut } = usePressScale(0.99);
 
   const toggle = () => {
     tapLight();
@@ -20,7 +22,7 @@ export default function ScienceCard({ fact, defaultOpen = false, tint = false })
   const spin = rot.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "180deg"] });
 
   return (
-    <View
+    <Animated.View
       style={[
         {
           backgroundColor: tint ? colors.sageSoft : colors.surface,
@@ -28,11 +30,12 @@ export default function ScienceCard({ fact, defaultOpen = false, tint = false })
           borderWidth: 1,
           borderColor: tint ? "transparent" : colors.line,
           overflow: "hidden",
+          transform: [{ scale }],
         },
         !tint && shadow.card,
       ]}
     >
-      <Pressable onPress={toggle} style={{ padding: space.xl }}>
+      <Pressable onPress={toggle} onPressIn={onPressIn} onPressOut={onPressOut} style={{ padding: space.xl }}>
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <Body
             style={{
@@ -69,6 +72,6 @@ export default function ScienceCard({ fact, defaultOpen = false, tint = false })
           </View>
         )}
       </Pressable>
-    </View>
+    </Animated.View>
   );
 }

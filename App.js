@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { View, StyleSheet } from "react-native";
+import { Animated, View, StyleSheet } from "react-native";
 import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { LinearGradient } from "expo-linear-gradient";
 import { useFonts } from "expo-font";
 
-import { colors } from "./src/theme/tokens";
+import { colors, motion } from "./src/theme/tokens";
 import { fontMap } from "./src/theme/fonts";
 import { AppProvider, useApp } from "./src/state/AppContext";
 import { analyzeImage, hasApiKey } from "./src/lib/anthropic";
@@ -155,12 +155,26 @@ function Root() {
     setStage(user && latest ? "home" : "intro");
   }, [user, latest]);
 
+  // Gentle cross-fade whenever the stage changes (ties transitions together
+  // without fighting each screen's own entrance motion).
+  const fade = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (stage === "loading") return;
+    fade.setValue(0);
+    Animated.timing(fade, {
+      toValue: 1,
+      duration: motion.duration.fast,
+      easing: motion.ease,
+      useNativeDriver: true,
+    }).start();
+  }, [stage, fade]);
+
   if (!fontsLoaded || stage === "loading") {
     return <View style={{ flex: 1 }} />;
   }
 
   return (
-    <View style={{ flex: 1, paddingTop: insets.top, paddingBottom: insets.bottom }}>
+    <Animated.View style={{ flex: 1, paddingTop: insets.top, paddingBottom: insets.bottom, opacity: fade }}>
       {stage === "intro" && <IntroScreen onStart={() => setStage("capture")} onPreview={preview} />}
       {stage === "capture" && <CaptureScreen onBack={backFromCapture} onCapture={onCapture} />}
       {stage === "analyzing" && <AnalyzingScreen />}
@@ -173,6 +187,6 @@ function Root() {
       {stage === "home" && (
         <HomeScreen onRescan={() => setStage("capture")} onViewReport={viewReport} onSignOut={onSignOut} />
       )}
-    </View>
+    </Animated.View>
   );
 }

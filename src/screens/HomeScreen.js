@@ -6,6 +6,7 @@ import { Title, Heading, Serif, Body, Small, Tiny } from "../components/Type";
 import { PrimaryButton } from "../components/Button";
 import { Arrow } from "../components/icons";
 import SectionLabel from "../components/SectionLabel";
+import Reveal from "../components/Reveal";
 import ScoreRing from "../components/ScoreRing";
 import ScienceCard from "../components/ScienceCard";
 import RoutineCard from "../components/RoutineCard";
@@ -72,13 +73,13 @@ export default function HomeScreen({ onRescan, onViewReport, onSignOut }) {
       showsVerticalScrollIndicator={false}
     >
       {/* header */}
-      <View>
+      <Reveal>
         <Tiny style={{ color: colors.ink3 }}>{greeting()}</Tiny>
         <Title style={{ marginTop: 2 }}>Your skin today</Title>
-      </View>
+      </Reveal>
 
       {/* latest score */}
-      <View style={{ alignItems: "center", marginTop: space.xl }}>
+      <Reveal delay={90} style={{ alignItems: "center", marginTop: space.xl }}>
         <ScoreRing value={clamp(Math.round(latest.overallClarity), 0, 100)} size={172} compact />
         <View style={{ marginTop: space.lg }}>
           <Delta latest={latest} previous={previous} />
@@ -86,34 +87,34 @@ export default function HomeScreen({ onRescan, onViewReport, onSignOut }) {
         <Serif style={{ textAlign: "center", marginTop: space.lg, fontSize: 18, lineHeight: 26, maxWidth: 330 }}>
           {latest.summary}
         </Serif>
-      </View>
+      </Reveal>
 
       {/* rescan */}
-      <View style={{ marginTop: space.h1 }}>
+      <Reveal delay={180} style={{ marginTop: space.h1 }}>
         <PrimaryButton label="Rescan my skin" full onPress={onRescan} />
-      </View>
+      </Reveal>
 
       {/* science */}
-      <View style={{ marginTop: space.giant }}>
+      <Reveal delay={270} style={{ marginTop: space.giant }}>
         <SectionLabel>THE SCIENCE</SectionLabel>
         <View style={{ marginTop: space.lg }}>
           <ScienceCard fact={fact} />
         </View>
-      </View>
+      </Reveal>
 
       {/* routine */}
       {(routine.am?.length || routine.pm?.length) ? (
-        <View style={{ marginTop: space.giant }}>
+        <Reveal delay={360} style={{ marginTop: space.giant }}>
           <SectionLabel>TODAY'S ROUTINE</SectionLabel>
           <View style={{ marginTop: space.lg }}>
             <RoutineCard am={routine.am || []} pm={routine.pm || []} />
           </View>
-        </View>
+        </Reveal>
       ) : null}
 
       {/* focus */}
       {focus.length > 0 && (
-        <View style={{ marginTop: space.giant }}>
+        <Reveal delay={450} style={{ marginTop: space.giant }}>
           <SectionLabel>FOCUS AREAS</SectionLabel>
           <View
             style={{
@@ -153,11 +154,11 @@ export default function HomeScreen({ onRescan, onViewReport, onSignOut }) {
               View full report
             </Small>
           </Pressable>
-        </View>
+        </Reveal>
       )}
 
       {/* account footer */}
-      <View style={{ marginTop: space.giant, alignItems: "center", gap: 6 }}>
+      <Reveal delay={540} style={{ marginTop: space.giant, alignItems: "center", gap: 6 }}>
         <Tiny style={{ color: colors.ink3 }}>
           {history.length} {history.length === 1 ? "scan" : "scans"} · signed in as {user?.email}
         </Tiny>
@@ -166,7 +167,7 @@ export default function HomeScreen({ onRescan, onViewReport, onSignOut }) {
             Sign out
           </Tiny>
         </Pressable>
-      </View>
+      </Reveal>
     </ScrollView>
   );
 }

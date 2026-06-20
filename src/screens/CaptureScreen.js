@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { View, StyleSheet } from "react-native";
+import { Animated, View, StyleSheet } from "react-native";
 import Svg, { Ellipse, Path } from "react-native-svg";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
@@ -31,6 +31,15 @@ export default function CaptureScreen({ onBack, onCapture }) {
   const cameraRef = useRef(null);
   const [permission, requestPermission] = useCameraPermissions();
   const [ready, setReady] = useState(false);
+  const flash = useRef(new Animated.Value(0)).current;
+
+  const triggerFlash = useCallback(() => {
+    flash.setValue(0);
+    Animated.sequence([
+      Animated.timing(flash, { toValue: 0.85, duration: 70, useNativeDriver: true }),
+      Animated.timing(flash, { toValue: 0, duration: 260, useNativeDriver: true }),
+    ]).start();
+  }, [flash]);
 
   useEffect(() => {
     if (permission && !permission.granted && permission.canAskAgain) {
@@ -40,6 +49,7 @@ export default function CaptureScreen({ onBack, onCapture }) {
 
   const capture = useCallback(async () => {
     if (!cameraRef.current) return;
+    triggerFlash();
     try {
       const photo = await cameraRef.current.takePictureAsync({
         base64: true,
@@ -49,7 +59,7 @@ export default function CaptureScreen({ onBack, onCapture }) {
     } catch {
       onCapture(null, null);
     }
-  }, [onCapture]);
+  }, [onCapture, triggerFlash]);
 
   const pick = useCallback(async () => {
     const res = await ImagePicker.launchImageLibraryAsync({
@@ -110,6 +120,10 @@ export default function CaptureScreen({ onBack, onCapture }) {
               </Body>
             </View>
           )}
+          <Animated.View
+            pointerEvents="none"
+            style={[StyleSheet.absoluteFill, { backgroundColor: "#FFFFFF", opacity: flash }]}
+          />
         </View>
       </Reveal>
 

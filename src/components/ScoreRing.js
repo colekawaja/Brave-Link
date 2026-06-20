@@ -17,10 +17,17 @@ export default function ScoreRing({ value, size = 248, compact = false }) {
   const numSize = compact ? Math.round(size * 0.34) : 80;
 
   const progress = useRef(new Animated.Value(0)).current;
+  const intro = useRef(new Animated.Value(0)).current;
   const [shown, setShown] = useState(0);
 
   useEffect(() => {
     const id = progress.addListener(({ value: v }) => setShown(Math.round(v * target)));
+    Animated.timing(intro, {
+      toValue: 1,
+      duration: 520,
+      easing: motion.ease,
+      useNativeDriver: true,
+    }).start();
     Animated.timing(progress, {
       toValue: 1,
       duration: 1300,
@@ -29,7 +36,9 @@ export default function ScoreRing({ value, size = 248, compact = false }) {
       useNativeDriver: false,
     }).start();
     return () => progress.removeListener(id);
-  }, [progress, target]);
+  }, [progress, intro, target]);
+
+  const introScale = intro.interpolate({ inputRange: [0, 1], outputRange: [0.94, 1] });
 
   const dashoffset = progress.interpolate({
     inputRange: [0, 1],
@@ -39,7 +48,16 @@ export default function ScoreRing({ value, size = 248, compact = false }) {
   const grad = scoreGradient(target);
 
   return (
-    <View style={{ width: size, height: size, alignItems: "center", justifyContent: "center" }}>
+    <Animated.View
+      style={{
+        width: size,
+        height: size,
+        alignItems: "center",
+        justifyContent: "center",
+        opacity: intro,
+        transform: [{ scale: introScale }],
+      }}
+    >
       <View style={{ position: "absolute" }}>
         <Aura size={size + 96} color={scoreGlow(target)} opacity={compact ? 0.35 : 0.45} />
       </View>
@@ -90,6 +108,6 @@ export default function ScoreRing({ value, size = 248, compact = false }) {
           SKIN CLARITY
         </Animated.Text>
       </View>
-    </View>
+    </Animated.View>
   );
 }
