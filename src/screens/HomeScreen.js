@@ -8,12 +8,10 @@ import { Arrow } from "../components/icons";
 import SectionLabel from "../components/SectionLabel";
 import Reveal from "../components/Reveal";
 import ScoreRing from "../components/ScoreRing";
-import ScienceCard from "../components/ScienceCard";
 import RoutineCard from "../components/RoutineCard";
 import ScoreBar from "../components/ScoreBar";
 import ProgressChart from "../components/ProgressChart";
 import { useApp } from "../state/AppContext";
-import { SCIENCE } from "../lib/scienceFacts";
 import { clamp, label, scoreColor, SEVERITY_ORDER } from "../lib/format";
 
 function greeting() {
@@ -65,9 +63,6 @@ export default function HomeScreen({ onRescan, onViewReport, onSignOut }) {
     .sort((a, b) => (SEVERITY_ORDER[b.severity] ?? 0) - (SEVERITY_ORDER[a.severity] ?? 0) || a.score - b.score)
     .slice(0, 3);
 
-  // Rotate the science fact by day so it feels fresh.
-  const fact = SCIENCE[new Date().getDate() % SCIENCE.length];
-
   return (
     <ScrollView
       contentContainerStyle={{ paddingHorizontal: space.xxl, paddingTop: space.xl, paddingBottom: space.giant }}
@@ -114,14 +109,6 @@ export default function HomeScreen({ onRescan, onViewReport, onSignOut }) {
           </View>
         </Reveal>
       )}
-
-      {/* science */}
-      <Reveal delay={270} style={{ marginTop: space.giant }}>
-        <SectionLabel>THE SCIENCE</SectionLabel>
-        <View style={{ marginTop: space.lg }}>
-          <ScienceCard fact={fact} />
-        </View>
-      </Reveal>
 
       {/* routine */}
       {(routine.am?.length || routine.pm?.length) ? (
