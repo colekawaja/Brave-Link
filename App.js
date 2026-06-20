@@ -18,6 +18,7 @@ import ConfirmScreen from "./src/screens/ConfirmScreen";
 import AnalyzingScreen from "./src/screens/AnalyzingScreen";
 import AccountScreen from "./src/screens/AccountScreen";
 import PaywallScreen from "./src/screens/PaywallScreen";
+import LimitScreen from "./src/screens/LimitScreen";
 import ErrorScreen from "./src/screens/ErrorScreen";
 import ResultsScreen from "./src/screens/ResultsScreen";
 import HomeScreen from "./src/screens/HomeScreen";
@@ -64,9 +65,22 @@ function Root() {
     }
   }, [ready, fontsLoaded, user, subscribed, latest]);
 
+  // One real (API-backed) scan per day. Demo/sample scans don't count, so
+  // the no-key preview stays unlimited for testing.
+  const DAILY_LIMIT = 1;
+  const today = new Date().toDateString();
+  const usedToday = history.filter(
+    (h) => !h.demo && new Date(h.date).toDateString() === today
+  ).length;
+  const canScan = usedToday < DAILY_LIMIT;
+
+  const goScan = useCallback(() => {
+    setStage(canScan ? "capture" : "limit");
+  }, [canScan]);
+
   const commit = useCallback(
     (result, isDemo) => {
-      const rec = addScan(result);
+      const rec = addScan(result, { demo: isDemo });
       setActive({ ...rec, _demo: isDemo });
       setStage("results");
     },
@@ -183,8 +197,9 @@ function Root() {
 
   return (
     <Animated.View style={{ flex: 1, paddingTop: insets.top, paddingBottom: insets.bottom, opacity: fade }}>
-      {stage === "intro" && <IntroScreen onStart={() => setStage("capture")} onPreview={preview} />}
+      {stage === "intro" && <IntroScreen onStart={goScan} onPreview={preview} />}
       {stage === "capture" && <CaptureScreen onBack={backFromCapture} onCapture={onCapture} />}
+      {stage === "limit" && <LimitScreen onClose={() => setStage(user && latest ? "home" : "intro")} />}
       {stage === "confirm" && captured && (
         <ConfirmScreen
           image={captured}
@@ -200,7 +215,7 @@ function Root() {
         <ResultsScreen result={active} demo={active._demo} onDone={onResultsDone} />
       )}
       {stage === "home" && (
-        <HomeScreen onRescan={() => setStage("capture")} onViewReport={viewReport} onSignOut={onSignOut} />
+        <HomeScreen onRescan={goScan} onViewReport={viewReport} onSignOut={onSignOut} canScan={canScan} />
       )}
     </Animated.View>
   );

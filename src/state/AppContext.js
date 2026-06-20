@@ -54,8 +54,8 @@ export function AppProvider({ children }) {
   }, []);
 
   // Save a completed scan to history; returns the stored record.
-  const addScan = useCallback((result) => {
-    const record = { id: nextId(), date: new Date().toISOString(), ...result };
+  const addScan = useCallback((result, meta = {}) => {
+    const record = { id: nextId(), date: new Date().toISOString(), demo: !!meta.demo, ...result };
     setHistory((prev) => {
       const next = [...prev, record];
       saveJSON(KEYS.history, next);

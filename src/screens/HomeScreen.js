@@ -53,7 +53,7 @@ function Delta({ latest, previous }) {
   );
 }
 
-export default function HomeScreen({ onRescan, onViewReport, onSignOut }) {
+export default function HomeScreen({ onRescan, onViewReport, onSignOut, canScan = true }) {
   const { user, latest, previous, history } = useApp();
   const reduced = useReducedMotion();
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -113,7 +113,12 @@ export default function HomeScreen({ onRescan, onViewReport, onSignOut }) {
 
       {/* rescan */}
       <Reveal delay={180} style={{ marginTop: space.h1 }}>
-        <PrimaryButton label="Rescan my skin" full onPress={onRescan} />
+        <PrimaryButton label={canScan ? "Rescan my skin" : "Next scan tomorrow"} full onPress={onRescan} />
+        {!canScan && (
+          <Tiny style={{ textAlign: "center", color: colors.ink3, marginTop: space.md }}>
+            One scan a day keeps your progress meaningful.
+          </Tiny>
+        )}
       </Reveal>
 
       {/* progress over time */}
