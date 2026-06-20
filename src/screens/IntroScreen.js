@@ -8,6 +8,7 @@ import ScienceCard from "../components/ScienceCard";
 import Reveal from "../components/Reveal";
 import Aura from "../components/Aura";
 import { SCIENCE } from "../lib/scienceFacts";
+import { hasApiKey } from "../lib/anthropic";
 import useReducedMotion from "../lib/useReducedMotion";
 
 /* The front page — an editorial hero with one telling, citable statistic. */
@@ -75,6 +76,24 @@ export default function IntroScreen({ onStart, onPreview }) {
           Your photo is analyzed for this scan only and never stored.
         </Tiny>
       </Reveal>
+
+      {__DEV__ && (
+        <Reveal delay={860} style={{ alignItems: "center", marginTop: space.lg }}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+            <View
+              style={{
+                width: 7,
+                height: 7,
+                borderRadius: 4,
+                backgroundColor: hasApiKey ? colors.sage : colors.gold,
+              }}
+            />
+            <Tiny style={{ color: colors.ink3 }}>
+              {hasApiKey ? "API key connected" : "Demo mode — no API key"}
+            </Tiny>
+          </View>
+        </Reveal>
+      )}
     </ScrollView>
   );
 }
