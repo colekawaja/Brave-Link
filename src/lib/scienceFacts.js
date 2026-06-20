@@ -3,12 +3,12 @@
  * personalized medical advice). */
 export const SCIENCE = [
   {
-    stat: "80%",
-    headline: "of visible facial aging comes from the sun",
+    stat: "#1",
+    headline: "Clear, even skin is the strongest cue of a healthy, attractive face.",
     detail:
-      "In a study of 298 women, up to 80% of visible facial aging signs were linked to UV exposure — which means most of it is preventable with daily protection.",
-    source: "Flament et al., 2013 · Clin. Cosmetic & Investig. Dermatology",
-    url: "https://pubmed.ncbi.nlm.nih.gov/24101874/",
+      "Studies find unblemished, even skin is the trait people read first when judging health and attractiveness — and it's exactly what consistent skincare builds.",
+    source: "Samson, Fink & Matts, 2010 · Int. J. Cosmetic Science",
+    url: "https://onlinelibrary.wiley.com/doi/10.1111/j.1468-2494.2009.00535.x",
   },
   {
     stat: "24%",
