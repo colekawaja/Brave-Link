@@ -22,20 +22,45 @@ texture. It is supportive and constructive, never a judgment of the person.
 All state lives in React state — the photo is analyzed for the scan only and is
 never stored.
 
+## Flow
+
+New users go through an intentional funnel — they invest a little (take the
+photo) *before* being asked to sign up or pay:
+
+```
+intro → capture → analyzing → account → paywall → results → home (dashboard)
+```
+
+Returning users open straight to the **dashboard**, where they can rescan, watch
+their score change over time, see their daily routine, and read the science.
+Accounts, subscription, and scan history are persisted with AsyncStorage so
+progress survives restarts.
+
 ## Architecture
 
 The app is organized as a small, layered codebase under `src/`:
 
 ```
-App.js                 entry — gradient canvas, fonts, stage routing
+App.js                 entry — gradient canvas, fonts, the funnel/stage machine
 src/
   theme/               design tokens (color, type, spacing, shadow, motion) + fonts
-  lib/                 anthropic (prompt + request), format helpers, haptics
-  hooks/               useAnalysis — owns the intro→capture→results flow
+  state/               AppContext — account, subscription, scan history (persisted)
+  lib/                 anthropic, evidence, scienceFacts, sampleResult, format,
+                       haptics, storage
   components/          design system: Type, Button, ScoreRing, ScoreBar,
-                       ConcernCard, RoutineCard, Chip, Aura, icons, Reveal
-  screens/             Intro, Capture, Analyzing, Error, Results
+                       ConcernCard, RoutineCard, ScienceCard, Collapsible,
+                       ProductRow, Chip, Aura, SectionLabel, icons, Reveal
+  screens/             Intro, Capture, Analyzing, Account, Paywall, Error,
+                       Results, Home
 ```
+
+## Accounts
+
+Sign-in is intentionally instant (`src/screens/AccountScreen.js`): one tap with
+Google, or an email with **no password and no verification**. In Expo Go the
+Google sign-in is **simulated** (no real OAuth); wiring real Google auth later
+means `expo-auth-session` with a client ID. Sign-out clears the local account
+and history.
 
 Everything visual flows from `src/theme/tokens.js` — one accent, layered warm
 surfaces, fine hairlines, soft shadows, and a single expressive motion curve.

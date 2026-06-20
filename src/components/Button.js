@@ -3,7 +3,7 @@ import { Animated, Pressable, View } from "react-native";
 import { colors, radius, shadow } from "../theme/tokens";
 import { FONT } from "../theme/fonts";
 import { Body } from "./Type";
-import { AppleLogo } from "./icons";
+import { AppleLogo, GoogleG } from "./icons";
 import { tapLight, tapMedium } from "../lib/haptics";
 
 /* Springy press scale shared by the tactile buttons. */
@@ -170,6 +170,43 @@ export function ApplePayButton({ onPress, full }) {
       >
         <AppleLogo size={20} color="#FFFFFF" />
         <Body style={{ fontFamily: FONT.sansSemi, color: "#FFFFFF", fontSize: 18 }}>Pay</Body>
+      </Pressable>
+    </Animated.View>
+  );
+}
+
+/* "Continue with Google" — white pill with the Google mark. The sign-in
+ * itself is instant (no real OAuth in Expo Go). */
+export function GoogleButton({ onPress, full }) {
+  const { s, onPressIn, onPressOut } = usePressScale(0.97);
+  return (
+    <Animated.View style={[{ transform: [{ scale: s }] }, full && { alignSelf: "stretch" }]}>
+      <Pressable
+        onPressIn={() => {
+          tapMedium();
+          onPressIn();
+        }}
+        onPressOut={onPressOut}
+        onPress={onPress}
+        style={[
+          {
+            backgroundColor: "#FFFFFF",
+            borderRadius: radius.pill,
+            borderWidth: 1,
+            borderColor: "#E3DDD0",
+            paddingVertical: 15,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 10,
+          },
+          shadow.card,
+        ]}
+      >
+        <GoogleG size={18} />
+        <Body style={{ fontFamily: FONT.sansSemi, color: "#3C4043", fontSize: 15 }}>
+          Continue with Google
+        </Body>
       </Pressable>
     </Animated.View>
   );

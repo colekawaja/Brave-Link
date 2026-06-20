@@ -2,10 +2,11 @@ import React from "react";
 import { ScrollView, View } from "react-native";
 import { FONT } from "../theme/fonts";
 import { colors, radius, space } from "../theme/tokens";
-import { Kicker, Heading, Serif, Body, Small, Tiny } from "../components/Type";
-import { GhostButton } from "../components/Button";
+import { Serif, Body, Small, Tiny } from "../components/Type";
+import { PrimaryButton } from "../components/Button";
 import { Sparkle } from "../components/icons";
 import Reveal from "../components/Reveal";
+import SectionLabel from "../components/SectionLabel";
 import ScoreRing from "../components/ScoreRing";
 import ConcernCard from "../components/ConcernCard";
 import RoutineCard from "../components/RoutineCard";
@@ -13,16 +14,7 @@ import Collapsible from "../components/Collapsible";
 import ProductRow from "../components/ProductRow";
 import { clamp, label, scoreColor, SEVERITY_ORDER } from "../lib/format";
 
-function SectionLabel({ children }) {
-  return (
-    <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-      <Kicker>{children}</Kicker>
-      <View style={{ flex: 1, height: 1, backgroundColor: colors.line }} />
-    </View>
-  );
-}
-
-export default function ResultsScreen({ result, demo, onRescan }) {
+export default function ResultsScreen({ result, demo, onDone }) {
   const concerns = Array.isArray(result.concerns) ? result.concerns : [];
   const sorted = [...concerns].sort(
     (a, b) =>
@@ -151,8 +143,8 @@ export default function ResultsScreen({ result, demo, onRescan }) {
         for any skin condition or concern.
       </Tiny>
 
-      <View style={{ marginTop: space.h1, alignItems: "center" }}>
-        <GhostButton label="Scan again" onPress={onRescan} />
+      <View style={{ marginTop: space.h1 }}>
+        <PrimaryButton label="Go to my dashboard" full onPress={onDone} />
       </View>
     </ScrollView>
   );

@@ -9,12 +9,12 @@ import Aura from "./Aura";
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 /* The hero: a gradient ring that fills and counts up over a soft glow. */
-export default function ScoreRing({ value }) {
-  const size = 248;
-  const stroke = 12;
+export default function ScoreRing({ value, size = 248, compact = false }) {
+  const stroke = compact ? 9 : 12;
   const r = (size - stroke) / 2;
   const circ = 2 * Math.PI * r;
   const target = clamp(value, 0, 100);
+  const numSize = compact ? Math.round(size * 0.34) : 80;
 
   const progress = useRef(new Animated.Value(0)).current;
   const [shown, setShown] = useState(0);
@@ -41,7 +41,7 @@ export default function ScoreRing({ value }) {
   return (
     <View style={{ width: size, height: size, alignItems: "center", justifyContent: "center" }}>
       <View style={{ position: "absolute" }}>
-        <Aura size={size + 96} color={scoreGlow(target)} opacity={0.45} />
+        <Aura size={size + 96} color={scoreGlow(target)} opacity={compact ? 0.35 : 0.45} />
       </View>
 
       <Svg width={size} height={size} style={{ transform: [{ rotate: "-90deg" }] }}>
@@ -71,8 +71,8 @@ export default function ScoreRing({ value }) {
           style={{
             fontFamily: FONT.serif,
             color: colors.ink,
-            fontSize: 80,
-            lineHeight: 84,
+            fontSize: numSize,
+            lineHeight: numSize + 4,
             letterSpacing: -1,
           }}
         >
@@ -82,8 +82,8 @@ export default function ScoreRing({ value }) {
           style={{
             fontFamily: FONT.sansMed,
             color: colors.ink3,
-            fontSize: 11,
-            letterSpacing: 2.8,
+            fontSize: compact ? 9.5 : 11,
+            letterSpacing: compact ? 2 : 2.8,
             marginTop: 4,
           }}
         >
