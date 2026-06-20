@@ -9,38 +9,15 @@ import Reveal from "../components/Reveal";
 import ScoreRing from "../components/ScoreRing";
 import ConcernCard from "../components/ConcernCard";
 import RoutineCard from "../components/RoutineCard";
-import { clamp, label, SEVERITY_ORDER } from "../lib/format";
+import Collapsible from "../components/Collapsible";
+import ProductRow from "../components/ProductRow";
+import { clamp, label, scoreColor, SEVERITY_ORDER } from "../lib/format";
 
 function SectionLabel({ children }) {
   return (
     <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
       <Kicker>{children}</Kicker>
       <View style={{ flex: 1, height: 1, backgroundColor: colors.line }} />
-    </View>
-  );
-}
-
-function ProductRow({ product }) {
-  return (
-    <View style={{ paddingVertical: space.md, borderTopWidth: 1, borderTopColor: colors.lineSoft }}>
-      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", gap: space.md }}>
-        <Body style={{ flex: 1, fontFamily: FONT.sansSemi, color: colors.ink, fontSize: 14.5 }}>
-          {product.example}
-        </Body>
-        <View
-          style={{
-            backgroundColor: colors.sageSoft,
-            borderRadius: radius.chip,
-            paddingHorizontal: 9,
-            paddingVertical: 4,
-          }}
-        >
-          <Tiny style={{ color: colors.sageDeep, fontFamily: FONT.sansMed }}>{product.ingredient}</Tiny>
-        </View>
-      </View>
-      <Small style={{ marginTop: 5, color: colors.ink2 }}>
-        {product.type} — {product.why}
-      </Small>
     </View>
   );
 }
@@ -125,23 +102,33 @@ export default function ResultsScreen({ result, demo, onRescan }) {
         </Reveal>
       )}
 
-      {/* recommendations */}
+      {/* recommendations — tap a concern to expand its evidence-based picks */}
       {recs.length > 0 && (
         <View style={{ marginTop: space.giant }}>
           <Reveal>
             <SectionLabel>RECOMMENDED</SectionLabel>
+            <Small style={{ marginTop: space.sm, color: colors.ink3 }}>
+              Tap a concern for picks, each backed by peer-reviewed research.
+            </Small>
           </Reveal>
-          <View style={{ marginTop: space.xl, gap: space.h2 }}>
-            {recs.map((c, idx) => (
-              <Reveal key={c.name} delay={80 + idx * 70}>
-                <Heading style={{ fontSize: 18 }}>{label(c.name)}</Heading>
-                <View style={{ marginTop: space.sm }}>
-                  {c.products.slice(0, 3).map((p, i) => (
-                    <ProductRow key={i} product={p} />
-                  ))}
-                </View>
-              </Reveal>
-            ))}
+          <View style={{ marginTop: space.xl, gap: space.md }}>
+            {recs.map((c, idx) => {
+              const n = Math.min(c.products.length, 3);
+              return (
+                <Reveal key={c.name} delay={80 + idx * 70}>
+                  <Collapsible
+                    title={label(c.name)}
+                    accent={scoreColor(c.score)}
+                    meta={`${n} ${n === 1 ? "pick" : "picks"}`}
+                    defaultOpen={idx === 0}
+                  >
+                    {c.products.slice(0, 3).map((p, i) => (
+                      <ProductRow key={i} product={p} first={i === 0} />
+                    ))}
+                  </Collapsible>
+                </Reveal>
+              );
+            })}
           </View>
         </View>
       )}

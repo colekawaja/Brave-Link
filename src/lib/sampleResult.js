@@ -1,12 +1,12 @@
 /* A realistic sample analysis so the full UI can be explored without an
  * API key. Mirrors the exact shape the model returns. */
 export const SAMPLE_RESULT = {
-  overallClarity: 78,
-  summary: "Your skin looks calm and even overall — a few areas of texture and tone are worth a little focus.",
+  overallClarity: 61,
+  summary: "There's healthy, even-toned skin to build on — focusing on texture and dark spots should lift your score noticeably.",
   concerns: [
     {
       name: "Texture",
-      score: 67,
+      score: 54,
       severity: "moderate",
       note: "Some unevenness across the cheeks that gentle exfoliation can smooth.",
       products: [
@@ -26,7 +26,7 @@ export const SAMPLE_RESULT = {
     },
     {
       name: "Pigmentation",
-      score: 70,
+      score: 58,
       severity: "moderate",
       note: "A little uneven tone in spots — brightening actives and daily SPF help.",
       products: [
@@ -46,7 +46,7 @@ export const SAMPLE_RESULT = {
     },
     {
       name: "Breakouts",
-      score: 73,
+      score: 64,
       severity: "mild",
       note: "A few active spots — a salicylic cleanser keeps things clear.",
       products: [
@@ -60,7 +60,7 @@ export const SAMPLE_RESULT = {
     },
     {
       name: "Pores",
-      score: 75,
+      score: 66,
       severity: "mild",
       note: "Slightly visible around the nose — niacinamide helps them look refined.",
       products: [
@@ -74,28 +74,28 @@ export const SAMPLE_RESULT = {
     },
     {
       name: "Oiliness",
-      score: 79,
+      score: 69,
       severity: "mild",
       note: "A gentle shine through the T-zone, well within a healthy range.",
       products: [],
     },
     {
       name: "Redness",
-      score: 86,
+      score: 80,
       severity: "minimal",
       note: "Skin looks calm with very little visible redness.",
       products: [],
     },
     {
       name: "Hydration",
-      score: 88,
+      score: 82,
       severity: "minimal",
       note: "Looks well-hydrated and supple.",
       products: [],
     },
     {
       name: "Under-eye",
-      score: 83,
+      score: 78,
       severity: "minimal",
       note: "Bright and rested under the eyes.",
       products: [],

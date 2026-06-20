@@ -42,6 +42,32 @@ surfaces, fine hairlines, soft shadows, and a single expressive motion curve.
 The score color glides amber → sage-green (never red) and drives the hero ring,
 the glow behind it, the concern bars, and the severity dots.
 
+## Evidence-based recommendations
+
+Each recommended product can be expanded to show **"The evidence"** — a concise,
+cited finding from the dermatology literature (`src/lib/evidence.js`), matched to
+the product's active ingredient. Sources are real peer-reviewed studies, e.g.:
+
+- **Sunscreen** — daily users showed 24% less skin aging over 4.5 years
+  ([Hughes et al., 2013, *Annals of Internal Medicine*](https://pubmed.ncbi.nlm.nih.gov/23732711/)).
+- **Niacinamide** — 12-week double-blind reductions in pigmentation and fine
+  lines ([Bissett et al., 2005](https://pubmed.ncbi.nlm.nih.gov/16029679/)).
+- **Retinoids** — up to ~80% more dermal collagen across RCTs
+  ([tretinoin meta-analysis](https://pmc.ncbi.nlm.nih.gov/articles/PMC12615114/)).
+- **Vitamin C, azelaic acid, AHAs, salicylic/benzoyl** — see `evidence.js`.
+
+Figures summarize published findings for a lay reader and are educational, not
+personalized medical advice. Scoring is intentionally calibrated to be
+conservative, so there are always concrete areas to improve on.
+
+## Payment
+
+After a scan completes, results are gated behind a paywall ($5 / week) with an
+Apple Pay-style button (`src/screens/PaywallScreen.js`). In Expo Go the purchase
+is **simulated** — real Apple Pay needs StoreKit / in-app purchase via a dev
+build (e.g. RevenueCat or `expo-in-app-purchases`), which can't run in Expo Go.
+Once "purchased," results unlock for the rest of the session.
+
 ## Run it
 
 ```bash

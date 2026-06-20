@@ -3,6 +3,7 @@ import { Animated, Pressable, View } from "react-native";
 import { colors, radius, shadow } from "../theme/tokens";
 import { FONT } from "../theme/fonts";
 import { Body } from "./Type";
+import { AppleLogo } from "./icons";
 import { tapLight, tapMedium } from "../lib/haptics";
 
 /* Springy press scale shared by the tactile buttons. */
@@ -136,6 +137,39 @@ export function ShutterButton({ onPress, disabled }) {
             shadow.button,
           ]}
         />
+      </Pressable>
+    </Animated.View>
+  );
+}
+
+/* Apple Pay-style button. Visual + simulated tap; real StoreKit/PassKit
+ * needs a dev build, so this stands in for the purchase in Expo Go. */
+export function ApplePayButton({ onPress, full }) {
+  const { s, onPressIn, onPressOut } = usePressScale(0.97);
+  return (
+    <Animated.View style={[{ transform: [{ scale: s }] }, full && { alignSelf: "stretch" }]}>
+      <Pressable
+        onPressIn={() => {
+          tapMedium();
+          onPressIn();
+        }}
+        onPressOut={onPressOut}
+        onPress={onPress}
+        style={[
+          {
+            backgroundColor: "#000000",
+            borderRadius: 14,
+            paddingVertical: 16,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 7,
+          },
+          shadow.button,
+        ]}
+      >
+        <AppleLogo size={20} color="#FFFFFF" />
+        <Body style={{ fontFamily: FONT.sansSemi, color: "#FFFFFF", fontSize: 18 }}>Pay</Body>
       </Pressable>
     </Animated.View>
   );
