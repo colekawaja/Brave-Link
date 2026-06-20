@@ -66,6 +66,15 @@ function Root() {
   const [demo, setDemo] = useState(false);
   const routed = useRef(false);
 
+  // One-time startup diagnostic so it's obvious whether the API key loaded.
+  useEffect(() => {
+    console.log(
+      hasApiKey
+        ? "[Clarity] API key detected — real scans (not Preview) will call the API."
+        : "[Clarity] No API key detected — set EXPO_PUBLIC_ANTHROPIC_API_KEY in .env and restart with `npx expo start -c`."
+    );
+  }, []);
+
   // Decide the landing screen once everything has loaded.
   useEffect(() => {
     if (ready && fontsReady && !routed.current) {
