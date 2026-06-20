@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Animated, View } from "react-native";
+import { Animated, Easing, View } from "react-native";
 import Svg, { Defs, LinearGradient, Stop, Circle } from "react-native-svg";
 import { FONT } from "../theme/fonts";
 import { colors, motion } from "../theme/tokens";
@@ -10,7 +10,7 @@ import Aura from "./Aura";
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 /* The hero: a gradient ring that fills and counts up over a soft glow. */
-export default function ScoreRing({ value, size = 248, compact = false }) {
+export default function ScoreRing({ value, size = 248, compact = false, pulse = false }) {
   const stroke = compact ? 9 : 12;
   const r = (size - stroke) / 2;
   const circ = 2 * Math.PI * r;
@@ -47,6 +47,22 @@ export default function ScoreRing({ value, size = 248, compact = false }) {
 
   const introScale = intro.interpolate({ inputRange: [0, 1], outputRange: [0.94, 1] });
 
+  // A slow, subtle breathing of the glow behind the ring.
+  const breathe = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (!pulse || reduced) return;
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(breathe, { toValue: 1, duration: 2800, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
+        Animated.timing(breathe, { toValue: 0, duration: 2800, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [pulse, reduced, breathe]);
+  const auraScale = breathe.interpolate({ inputRange: [0, 1], outputRange: [1, 1.07] });
+  const auraOpacity = breathe.interpolate({ inputRange: [0, 1], outputRange: [1, 0.78] });
+
   const dashoffset = progress.interpolate({
     inputRange: [0, 1],
     outputRange: [circ, circ * (1 - target / 100)],
@@ -65,9 +81,9 @@ export default function ScoreRing({ value, size = 248, compact = false }) {
         transform: [{ scale: introScale }],
       }}
     >
-      <View style={{ position: "absolute" }}>
+      <Animated.View style={{ position: "absolute", transform: [{ scale: auraScale }], opacity: auraOpacity }}>
         <Aura size={size + 96} color={scoreGlow(target)} opacity={compact ? 0.35 : 0.45} />
-      </View>
+      </Animated.View>
 
       <Svg width={size} height={size} style={{ transform: [{ rotate: "-90deg" }] }}>
         <Defs>

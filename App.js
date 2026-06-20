@@ -9,7 +9,7 @@ import { colors, motion } from "./src/theme/tokens";
 import { fontMap } from "./src/theme/fonts";
 import { AppProvider, useApp } from "./src/state/AppContext";
 import { analyzeImage, hasApiKey } from "./src/lib/anthropic";
-import { SAMPLE_RESULT } from "./src/lib/sampleResult";
+import { makeSampleResult } from "./src/lib/sampleResult";
 import useReducedMotion from "./src/lib/useReducedMotion";
 
 import IntroScreen from "./src/screens/IntroScreen";
@@ -45,7 +45,7 @@ export default function App() {
 
 function Root() {
   const insets = useSafeAreaInsets();
-  const { ready, user, subscribed, latest, signIn, subscribe, signOut, addScan } = useApp();
+  const { ready, user, subscribed, latest, history, signIn, subscribe, signOut, addScan } = useApp();
   const [fontsLoaded] = useFonts(fontMap);
 
   const reduced = useReducedMotion();
@@ -93,7 +93,7 @@ function Root() {
       setStage("analyzing");
       if (!hasApiKey) {
         await sleep(1700);
-        gate(SAMPLE_RESULT, true);
+        gate(makeSampleResult(history.length), true);
         return;
       }
       try {
@@ -103,7 +103,7 @@ function Root() {
         setStage("error");
       }
     },
-    [gate]
+    [gate, history.length]
   );
 
   // Capture/upload now routes to a confirmation step before analyzing.
@@ -122,8 +122,8 @@ function Root() {
   const preview = useCallback(async () => {
     setStage("analyzing");
     await sleep(1500);
-    gate(SAMPLE_RESULT, true);
-  }, [gate]);
+    gate(makeSampleResult(history.length), true);
+  }, [gate, history.length]);
 
   const onSignIn = useCallback(
     (u) => {

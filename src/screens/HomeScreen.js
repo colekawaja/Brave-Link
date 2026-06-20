@@ -1,6 +1,7 @@
-import React from "react";
-import { Pressable, ScrollView, View } from "react-native";
+import React, { useRef } from "react";
+import { Animated, Pressable, View } from "react-native";
 import { FONT } from "../theme/fonts";
+import useReducedMotion from "../lib/useReducedMotion";
 import { colors, radius, space } from "../theme/tokens";
 import { Title, Heading, Serif, Body, Small, Tiny } from "../components/Type";
 import { PrimaryButton } from "../components/Button";
@@ -54,7 +55,28 @@ function Delta({ latest, previous }) {
 
 export default function HomeScreen({ onRescan, onViewReport, onSignOut }) {
   const { user, latest, previous, history } = useApp();
+  const reduced = useReducedMotion();
+  const scrollY = useRef(new Animated.Value(0)).current;
   if (!latest) return null;
+
+  const headerStyle = reduced
+    ? null
+    : {
+        transform: [
+          {
+            translateY: scrollY.interpolate({
+              inputRange: [-120, 0, 240],
+              outputRange: [-20, 0, -36],
+              extrapolate: "clamp",
+            }),
+          },
+        ],
+        opacity: scrollY.interpolate({
+          inputRange: [0, 150, 260],
+          outputRange: [1, 0.75, 0.45],
+          extrapolate: "clamp",
+        }),
+      };
 
   const routine = latest.routine || { am: [], pm: [] };
   const concerns = Array.isArray(latest.concerns) ? latest.concerns : [];
@@ -64,26 +86,30 @@ export default function HomeScreen({ onRescan, onViewReport, onSignOut }) {
     .slice(0, 3);
 
   return (
-    <ScrollView
+    <Animated.ScrollView
       contentContainerStyle={{ paddingHorizontal: space.xxl, paddingTop: space.xl, paddingBottom: space.giant }}
       showsVerticalScrollIndicator={false}
+      scrollEventThrottle={16}
+      onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
     >
-      {/* header */}
-      <Reveal>
-        <Tiny style={{ color: colors.ink3 }}>{greeting()}</Tiny>
-        <Title style={{ marginTop: 2 }}>Your skin today</Title>
-      </Reveal>
+      <Animated.View style={headerStyle}>
+        {/* header */}
+        <Reveal>
+          <Tiny style={{ color: colors.ink3 }}>{greeting()}</Tiny>
+          <Title style={{ marginTop: 2 }}>Your skin today</Title>
+        </Reveal>
 
-      {/* latest score */}
-      <Reveal delay={90} style={{ alignItems: "center", marginTop: space.xl }}>
-        <ScoreRing value={clamp(Math.round(latest.overallClarity), 0, 100)} size={172} compact />
-        <View style={{ marginTop: space.lg }}>
-          <Delta latest={latest} previous={previous} />
-        </View>
-        <Serif style={{ textAlign: "center", marginTop: space.lg, fontSize: 18, lineHeight: 26, maxWidth: 330 }}>
-          {latest.summary}
-        </Serif>
-      </Reveal>
+        {/* latest score */}
+        <Reveal delay={90} style={{ alignItems: "center", marginTop: space.xl }}>
+          <ScoreRing value={clamp(Math.round(latest.overallClarity), 0, 100)} size={172} compact />
+          <View style={{ marginTop: space.lg }}>
+            <Delta latest={latest} previous={previous} />
+          </View>
+          <Serif style={{ textAlign: "center", marginTop: space.lg, fontSize: 18, lineHeight: 26, maxWidth: 330 }}>
+            {latest.summary}
+          </Serif>
+        </Reveal>
+      </Animated.View>
 
       {/* rescan */}
       <Reveal delay={180} style={{ marginTop: space.h1 }}>
@@ -136,8 +162,10 @@ export default function HomeScreen({ onRescan, onViewReport, onSignOut }) {
             }}
           >
             {focus.map((c, i) => (
-              <View
+              <Reveal
                 key={c.name}
+                delay={480 + i * 70}
+                distance={6}
                 style={{
                   paddingVertical: space.lg,
                   borderTopWidth: i === 0 ? 0 : 1,
@@ -151,7 +179,7 @@ export default function HomeScreen({ onRescan, onViewReport, onSignOut }) {
                 <View style={{ marginTop: 10 }}>
                   <ScoreBar value={c.score} />
                 </View>
-              </View>
+              </Reveal>
             ))}
           </View>
           <Pressable
@@ -176,6 +204,6 @@ export default function HomeScreen({ onRescan, onViewReport, onSignOut }) {
           </Tiny>
         </Pressable>
       </Reveal>
-    </ScrollView>
+    </Animated.ScrollView>
   );
 }

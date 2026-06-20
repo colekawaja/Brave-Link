@@ -1,7 +1,8 @@
-import React from "react";
-import { ScrollView, View } from "react-native";
+import React, { useRef } from "react";
+import { Animated, View } from "react-native";
 import { FONT } from "../theme/fonts";
 import { colors, radius, space } from "../theme/tokens";
+import useReducedMotion from "../lib/useReducedMotion";
 import { Serif, Body, Small, Tiny } from "../components/Type";
 import { PrimaryButton } from "../components/Button";
 import { Sparkle } from "../components/icons";
@@ -28,12 +29,36 @@ export default function ResultsScreen({ result, demo, onDone }) {
     .slice(0, 4);
   const routine = result.routine || { am: [], pm: [] };
 
+  const reduced = useReducedMotion();
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const heroStyle = reduced
+    ? null
+    : {
+        transform: [
+          {
+            translateY: scrollY.interpolate({
+              inputRange: [-120, 0, 280],
+              outputRange: [-24, 0, -44],
+              extrapolate: "clamp",
+            }),
+          },
+        ],
+        opacity: scrollY.interpolate({
+          inputRange: [0, 180, 300],
+          outputRange: [1, 0.72, 0.4],
+          extrapolate: "clamp",
+        }),
+      };
+
   return (
-    <ScrollView
+    <Animated.ScrollView
       contentContainerStyle={{ paddingHorizontal: space.xxl, paddingTop: space.xl, paddingBottom: space.giant }}
       showsVerticalScrollIndicator={false}
+      scrollEventThrottle={16}
+      onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
     >
       {/* hero */}
+      <Animated.View style={heroStyle}>
       <Reveal style={{ alignItems: "center", marginTop: space.md }}>
         {demo && (
           <View
@@ -50,11 +75,12 @@ export default function ResultsScreen({ result, demo, onDone }) {
             </Tiny>
           </View>
         )}
-        <ScoreRing value={clamp(Math.round(result.overallClarity), 0, 100)} />
+        <ScoreRing value={clamp(Math.round(result.overallClarity), 0, 100)} pulse />
         <Serif style={{ textAlign: "center", marginTop: space.h3, maxWidth: 350 }}>
           {result.summary}
         </Serif>
       </Reveal>
+      </Animated.View>
 
       {/* focus */}
       {focus.length > 0 && (
@@ -146,6 +172,6 @@ export default function ResultsScreen({ result, demo, onDone }) {
       <View style={{ marginTop: space.h1 }}>
         <PrimaryButton label="Go to my dashboard" full onPress={onDone} />
       </View>
-    </ScrollView>
+    </Animated.ScrollView>
   );
 }

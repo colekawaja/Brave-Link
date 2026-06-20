@@ -1,5 +1,7 @@
 /* A realistic sample analysis so the full UI can be explored without an
  * API key. Mirrors the exact shape the model returns. */
+import { clamp } from "./format";
+
 export const SAMPLE_RESULT = {
   overallClarity: 61,
   summary: "There's healthy, even-toned skin to build on — focusing on texture and dark spots should lift your score noticeably.",
@@ -116,3 +118,30 @@ export const SAMPLE_RESULT = {
     ],
   },
 };
+
+function severityFor(score) {
+  if (score >= 80) return "minimal";
+  if (score >= 66) return "mild";
+  if (score >= 50) return "moderate";
+  return "notable";
+}
+
+/* A sample that gently improves with each demo scan, so the progress chart
+ * shows real movement without an API key. */
+export function makeSampleResult(scanCount = 0) {
+  const drift = Math.min(scanCount * 4, 22);
+  const jitter = () => Math.round((Math.random() - 0.5) * 4); // ~ -2..2
+  const bump = (base) => clamp(Math.round(base + drift + jitter()), 0, 100);
+
+  const concerns = SAMPLE_RESULT.concerns.map((c) => {
+    const score = bump(c.score);
+    const severity = severityFor(score);
+    return { ...c, score, severity, products: severity === "minimal" ? [] : c.products };
+  });
+
+  return {
+    ...SAMPLE_RESULT,
+    overallClarity: bump(SAMPLE_RESULT.overallClarity),
+    concerns,
+  };
+}

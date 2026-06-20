@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Animated, View } from "react-native";
+import { Animated, Easing, View } from "react-native";
 import Svg, { Defs, LinearGradient, Stop, Path, Circle } from "react-native-svg";
 import { FONT } from "../theme/fonts";
 import { colors, motion } from "../theme/tokens";
@@ -8,6 +8,7 @@ import { clamp, scoreColor, scoreGradient } from "../lib/format";
 import useReducedMotion from "../lib/useReducedMotion";
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 /* A clean sparkline of overall clarity across past scans. */
 export default function ProgressChart({ history }) {
@@ -61,6 +62,22 @@ export default function ProgressChart({ history }) {
   const grad = scoreGradient(data[n - 1]);
   const last = pts[pts.length - 1];
 
+  // Gentle pulse on the latest point.
+  const pulse = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (reduced) return;
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulse, { toValue: 1, duration: 1400, easing: Easing.inOut(Easing.quad), useNativeDriver: false }),
+        Animated.timing(pulse, { toValue: 0, duration: 1400, easing: Easing.inOut(Easing.quad), useNativeDriver: false }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [pulse, reduced]);
+  const haloR = pulse.interpolate({ inputRange: [0, 1], outputRange: [8, 12] });
+  const haloO = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.22, 0.06] });
+
   return (
     <View>
       <View onLayout={(e) => setW(e.nativeEvent.layout.width)} style={{ height: H }}>
@@ -87,8 +104,8 @@ export default function ProgressChart({ history }) {
               strokeDasharray={len}
               strokeDashoffset={dashoffset}
             />
+            <AnimatedCircle cx={last.x} cy={last.y} r={haloR} fill={scoreColor(data[n - 1])} opacity={haloO} />
             <Circle cx={last.x} cy={last.y} r={4.5} fill={scoreColor(data[n - 1])} />
-            <Circle cx={last.x} cy={last.y} r={8} fill={scoreColor(data[n - 1])} opacity={0.18} />
           </Svg>
         )}
       </View>
