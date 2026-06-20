@@ -129,13 +129,13 @@ function Root() {
         return;
       }
       try {
-        const result = await analyzeImage(base64, mediaType);
+        const result = await analyzeImage(base64, mediaType, history);
         gate(result, false);
       } catch {
         setStage("error");
       }
     },
-    [gate, history.length]
+    [gate, history]
   );
 
   // Capture/upload now routes to a confirmation step before analyzing.
@@ -176,6 +176,12 @@ function Root() {
     setActive({ ...latest, _demo: false });
     setStage("results");
   }, [latest]);
+
+  const viewRecord = useCallback((record) => {
+    if (!record) return;
+    setActive({ ...record, _demo: false });
+    setStage("results");
+  }, []);
 
   const onResultsDone = useCallback(() => {
     setStage(user && latest ? "home" : "intro");
@@ -233,7 +239,13 @@ function Root() {
         <ResultsScreen result={active} demo={active._demo} onDone={onResultsDone} />
       )}
       {stage === "home" && (
-        <HomeScreen onRescan={goScan} onViewReport={viewReport} onSignOut={onSignOut} canScan={canScan} />
+        <HomeScreen
+          onRescan={goScan}
+          onViewReport={viewReport}
+          onViewRecord={viewRecord}
+          onSignOut={onSignOut}
+          canScan={canScan}
+        />
       )}
     </Animated.View>
   );

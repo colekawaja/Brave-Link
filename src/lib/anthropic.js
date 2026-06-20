@@ -59,7 +59,25 @@ function buildHeaders() {
   return headers;
 }
 
-export async function analyzeImage(base64, mediaType) {
+// A compact summary of recent scans, fed to the model for continuity.
+function historyBlock(history = []) {
+  const real = (history || []).filter((h) => !h.demo).slice(-5);
+  if (!real.length) return "";
+  const lines = real
+    .map((h) => {
+      const d = new Date(h.date).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+      const worst = [...(h.concerns || [])]
+        .sort((a, b) => a.score - b.score)
+        .slice(0, 3)
+        .map((c) => `${c.name} ${c.score}`)
+        .join(", ");
+      return `- ${d}: overall ${Math.round(h.overallClarity)}${worst ? ` (${worst})` : ""}`;
+    })
+    .join("\n");
+  return `\n\nThis user has scanned before. Their previous results (oldest to newest):\n${lines}\n\nScore THIS photo on its own merits, but use the history for continuity: where this photo shows improvement in an area they previously struggled with, acknowledge that progress warmly in that concern's "note" and in the "summary". If something regressed or a new area stands out, gently flag it. Make the "summary" reflect their trajectory (improving, holding steady, or a new focus) rather than treating this as a first-time scan.`;
+}
+
+export async function analyzeImage(base64, mediaType, history = []) {
   if (!hasApiKey) {
     console.warn(
       "[Clarity] No API key — using sample data. Add EXPO_PUBLIC_ANTHROPIC_API_KEY to .env and restart with `npx expo start -c`."
@@ -81,7 +99,7 @@ export async function analyzeImage(base64, mediaType) {
               type: "image",
               source: { type: "base64", media_type: mediaType, data: base64 },
             },
-            { type: "text", text: ANALYSIS_PROMPT },
+            { type: "text", text: ANALYSIS_PROMPT + historyBlock(history) },
           ],
         },
       ],

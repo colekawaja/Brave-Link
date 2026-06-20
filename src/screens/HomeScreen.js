@@ -11,7 +11,7 @@ import Reveal from "../components/Reveal";
 import ScoreRing from "../components/ScoreRing";
 import RoutineCard from "../components/RoutineCard";
 import ScoreBar from "../components/ScoreBar";
-import ProgressChart from "../components/ProgressChart";
+import ScoreCalendar from "../components/ScoreCalendar";
 import { useApp } from "../state/AppContext";
 import { clamp, label, scoreColor, SEVERITY_ORDER } from "../lib/format";
 
@@ -53,7 +53,7 @@ function Delta({ latest, previous }) {
   );
 }
 
-export default function HomeScreen({ onRescan, onViewReport, onSignOut, canScan = true }) {
+export default function HomeScreen({ onRescan, onViewReport, onViewRecord, onSignOut, canScan = true }) {
   const { user, latest, previous, history } = useApp();
   const reduced = useReducedMotion();
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -121,22 +121,12 @@ export default function HomeScreen({ onRescan, onViewReport, onSignOut, canScan 
         )}
       </Reveal>
 
-      {/* progress over time */}
-      {history.length >= 2 && (
+      {/* progress calendar */}
+      {history.length >= 1 && (
         <Reveal delay={240} style={{ marginTop: space.giant }}>
-          <SectionLabel>PROGRESS</SectionLabel>
-          <View
-            style={{
-              marginTop: space.lg,
-              backgroundColor: colors.surface,
-              borderRadius: radius.card,
-              borderWidth: 1,
-              borderColor: colors.line,
-              paddingHorizontal: space.xl,
-              paddingVertical: space.xl,
-            }}
-          >
-            <ProgressChart history={history} />
+          <SectionLabel>YOUR SCANS</SectionLabel>
+          <View style={{ marginTop: space.lg }}>
+            <ScoreCalendar history={history} onSelectDay={onViewRecord} />
           </View>
         </Reveal>
       )}
