@@ -1,0 +1,95 @@
+import React, { useEffect, useRef, useState } from "react";
+import { Animated, View } from "react-native";
+import Svg, { Defs, LinearGradient, Stop, Circle } from "react-native-svg";
+import { FONT } from "../theme/fonts";
+import { colors, motion } from "../theme/tokens";
+import { clamp, scoreGradient, scoreGlow } from "../lib/format";
+import Aura from "./Aura";
+
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+
+/* The hero: a gradient ring that fills and counts up over a soft glow. */
+export default function ScoreRing({ value }) {
+  const size = 248;
+  const stroke = 12;
+  const r = (size - stroke) / 2;
+  const circ = 2 * Math.PI * r;
+  const target = clamp(value, 0, 100);
+
+  const progress = useRef(new Animated.Value(0)).current;
+  const [shown, setShown] = useState(0);
+
+  useEffect(() => {
+    const id = progress.addListener(({ value: v }) => setShown(Math.round(v * target)));
+    Animated.timing(progress, {
+      toValue: 1,
+      duration: 1300,
+      delay: 250,
+      easing: motion.ease,
+      useNativeDriver: false,
+    }).start();
+    return () => progress.removeListener(id);
+  }, [progress, target]);
+
+  const dashoffset = progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [circ, circ * (1 - target / 100)],
+  });
+
+  const grad = scoreGradient(target);
+
+  return (
+    <View style={{ width: size, height: size, alignItems: "center", justifyContent: "center" }}>
+      <View style={{ position: "absolute" }}>
+        <Aura size={size + 96} color={scoreGlow(target)} opacity={0.45} />
+      </View>
+
+      <Svg width={size} height={size} style={{ transform: [{ rotate: "-90deg" }] }}>
+        <Defs>
+          <LinearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+            <Stop offset="0%" stopColor={grad.from} />
+            <Stop offset="100%" stopColor={grad.to} />
+          </LinearGradient>
+        </Defs>
+        <Circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={colors.lineSoft} strokeWidth={stroke} />
+        <Circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={colors.line} strokeWidth={stroke} opacity={0.6} />
+        <AnimatedCircle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          stroke="url(#ringGrad)"
+          strokeWidth={stroke}
+          strokeLinecap="round"
+          strokeDasharray={circ}
+          strokeDashoffset={dashoffset}
+        />
+      </Svg>
+
+      <View style={{ position: "absolute", alignItems: "center" }}>
+        <Animated.Text
+          style={{
+            fontFamily: FONT.serif,
+            color: colors.ink,
+            fontSize: 80,
+            lineHeight: 84,
+            letterSpacing: -1,
+          }}
+        >
+          {shown}
+        </Animated.Text>
+        <Animated.Text
+          style={{
+            fontFamily: FONT.sansMed,
+            color: colors.ink3,
+            fontSize: 11,
+            letterSpacing: 2.8,
+            marginTop: 4,
+          }}
+        >
+          SKIN CLARITY
+        </Animated.Text>
+      </View>
+    </View>
+  );
+}

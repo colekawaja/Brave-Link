@@ -22,12 +22,25 @@ texture. It is supportive and constructive, never a judgment of the person.
 All state lives in React state — the photo is analyzed for the scan only and is
 never stored.
 
-## The single-file app
+## Architecture
 
-The whole experience is one self-contained component: [`App.js`](App.js)
-(default export, functional components + hooks, native primitives —
-`expo-camera`, `react-native-svg`, native fonts via `@expo-google-fonts`). The
-rest of the project is just the Expo scaffolding needed to run it.
+The app is organized as a small, layered codebase under `src/`:
+
+```
+App.js                 entry — gradient canvas, fonts, stage routing
+src/
+  theme/               design tokens (color, type, spacing, shadow, motion) + fonts
+  lib/                 anthropic (prompt + request), format helpers, haptics
+  hooks/               useAnalysis — owns the intro→capture→results flow
+  components/          design system: Type, Button, ScoreRing, ScoreBar,
+                       ConcernCard, RoutineCard, Chip, Aura, icons, Reveal
+  screens/             Intro, Capture, Analyzing, Error, Results
+```
+
+Everything visual flows from `src/theme/tokens.js` — one accent, layered warm
+surfaces, fine hairlines, soft shadows, and a single expressive motion curve.
+The score color glides amber → sage-green (never red) and drives the hero ring,
+the glow behind it, the concern bars, and the severity dots.
 
 ## Run it
 
