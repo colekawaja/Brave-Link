@@ -116,13 +116,14 @@ function Root() {
     setStage("confirm");
   }, []);
 
-  // Free preview from the intro — skips the account/payment gate.
+  // Preview from the intro — runs the full funnel (account → paywall →
+  // results → dashboard) with sample data, so the whole app is explorable
+  // without an API key or a camera.
   const preview = useCallback(async () => {
     setStage("analyzing");
     await sleep(1500);
-    setActive({ ...SAMPLE_RESULT, _demo: true });
-    setStage("results");
-  }, []);
+    gate(SAMPLE_RESULT, true);
+  }, [gate]);
 
   const onSignIn = useCallback(
     (u) => {
